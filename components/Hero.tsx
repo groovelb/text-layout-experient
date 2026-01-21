@@ -25,7 +25,7 @@ const Hero: React.FC = () => {
           transform: `translate3d(0, -${transformY}px, 0)`
         }}
       >
-        <h1 className="font-serif text-[clamp(4rem,10vw,12rem)] leading-[1.2] tracking-[-0.05em] text-off-black uppercase [word-spacing:0.2em]">
+        <h1 className="font-serif font-semibold md:font-normal text-[clamp(2.5rem,10vw,12rem)] leading-[1.2] tracking-[-0.05em] text-off-black uppercase whitespace-nowrap">
           <RandomRevealText text={CONTENT.hero.title} delay={500} stagger={50} />
         </h1>
         <p className="mt-8 font-sans text-sm md:text-base tracking-widest text-off-black/60 opacity-0 animate-[fadeIn_1.5s_ease-out_0.5s_forwards]">

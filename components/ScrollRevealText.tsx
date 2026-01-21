@@ -69,7 +69,7 @@ const ScrollRevealText: React.FC<Props> = ({ text, className = '' }) => {
       {sentences.map((sentence, sIdx) => (
         <p
           key={sIdx}
-          className="font-serif text-3xl md:text-4xl lg:text-5xl leading-[1.9] mb-8 md:mb-12"
+          className="font-serif text-2xl md:text-4xl lg:text-5xl leading-[1.9] mb-8 md:mb-12"
         >
           {sentence.split('').map((char, cIdx) => {
             const isRevealed = charCounter < revealedCount;
