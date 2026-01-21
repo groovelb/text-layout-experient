@@ -1,67 +1,36 @@
 import React from 'react';
 import { CONTENT } from '../constants';
+import Section from './Section';
 import { useOnScreen } from '../hooks/useOnScreen';
 
 const SectionIgnore: React.FC = () => {
-  const [ref, isVisible] = useOnScreen({ threshold: 0.2 });
+  const [ref, isVisible] = useOnScreen({ threshold: 0.3 });
 
   return (
-    <section ref={ref} className="min-h-screen py-32 px-6 md:px-12 max-w-screen-xl mx-auto flex flex-col justify-center relative">
-      {/* Top Divider */}
-      <div className="w-full h-[1px] bg-mid-light opacity-20 mb-12" />
+    <Section sectionRef={ref}>
+      <div className="w-full h-[1px] bg-mid-light/40 mb-16 md:mb-24" />
 
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-12">
-        {/* Left Meta */}
-        <div className="md:col-span-3 flex flex-col justify-between h-full">
-          <span
-            className="font-sans text-[10px] md:text-xs font-medium tracking-[0.2em] uppercase text-mid-light transition-all duration-700"
-            style={{
-              opacity: isVisible ? 0.6 : 0,
-              transform: isVisible ? 'translateY(0)' : 'translateY(10px)'
-            }}
-          >
-            02 — {CONTENT.section2.label}
-          </span>
-        </div>
+      <h2
+        className="font-serif text-2xl md:text-3xl lg:text-4xl leading-[1.3] tracking-[-0.02em] text-mid-light mb-10 md:mb-12 transition-all duration-700"
+        style={{
+          opacity: isVisible ? 1 : 0,
+          transform: isVisible ? 'translateY(0)' : 'translateY(30px)',
+          wordSpacing: '0.1em'
+        }}
+      >
+        {CONTENT.section1.title}
+      </h2>
 
-        {/* Right Content */}
-        <div className="md:col-span-9">
-          <h2
-            className="font-serif text-2xl md:text-4xl leading-[1.4] text-mid-light mb-16 max-w-3xl transition-all duration-700 delay-200"
-            style={{
-              opacity: isVisible ? 1 : 0,
-              transform: isVisible ? 'translateY(0)' : 'translateY(20px)'
-            }}
-          >
-            {CONTENT.section2.title}
-          </h2>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-24">
-            <p
-              className="font-sans text-sm md:text-base leading-relaxed text-mid-light transition-all duration-700 delay-400"
-              style={{
-                opacity: isVisible ? 0.8 : 0,
-                transform: isVisible ? 'translateY(0)' : 'translateY(20px)'
-              }}
-            >
-              {CONTENT.section2.subtitleLeft}
-            </p>
-            <p
-              className="font-serif italic text-lg md:text-xl leading-relaxed text-mid-light transition-all duration-700 delay-500"
-              style={{
-                opacity: isVisible ? 0.9 : 0,
-                transform: isVisible ? 'translateY(0)' : 'translateY(20px)'
-              }}
-            >
-              {CONTENT.section2.subtitleRight}
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {/* Bottom Divider */}
-      <div className="w-full h-[1px] bg-mid-light opacity-20 mt-24" />
-    </section>
+      <p
+        className="font-sans text-xl md:text-2xl leading-[2] text-mid-light/70 transition-all duration-700 delay-200"
+        style={{
+          opacity: isVisible ? 1 : 0,
+          transform: isVisible ? 'translateY(0)' : 'translateY(20px)'
+        }}
+      >
+        {CONTENT.section1.exp}
+      </p>
+    </Section>
   );
 };
 

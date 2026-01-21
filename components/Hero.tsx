@@ -1,11 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { CONTENT } from '../constants';
+import RandomRevealText from './RandomRevealText';
 
-interface Props {
-  sectionRef?: React.RefObject<HTMLElement | null>;
-}
-
-const Hero: React.FC<Props> = ({ sectionRef }) => {
+const Hero: React.FC = () => {
   const [scrollY, setScrollY] = useState(0);
 
   useEffect(() => {
@@ -20,10 +17,7 @@ const Hero: React.FC<Props> = ({ sectionRef }) => {
   const transformY = scrollY * 0.3;
 
   return (
-    <section
-      ref={sectionRef as React.RefObject<HTMLElement>}
-      className="relative h-screen flex flex-col items-center justify-center overflow-hidden"
-    >
+    <section className="relative h-screen flex flex-col items-center justify-center overflow-hidden">
       <div
         className="text-center px-4"
         style={{
@@ -31,10 +25,10 @@ const Hero: React.FC<Props> = ({ sectionRef }) => {
           transform: `translate3d(0, -${transformY}px, 0)`
         }}
       >
-        <h1 className="font-serif text-[clamp(4rem,10vw,12rem)] leading-[1.2] tracking-[-0.05em] text-off-black animate-[fadeIn_1.5s_ease-out_forwards] [word-spacing:0.2em]">
-          {CONTENT.hero.title}
+        <h1 className="font-serif text-[clamp(4rem,10vw,12rem)] leading-[1.2] tracking-[-0.05em] text-off-black uppercase [word-spacing:0.2em]">
+          <RandomRevealText text={CONTENT.hero.title} delay={500} stagger={50} />
         </h1>
-        <p className="mt-8 font-sans text-sm md:text-base tracking-widest uppercase text-off-black/60 opacity-0 animate-[fadeIn_1.5s_ease-out_0.5s_forwards]">
+        <p className="mt-8 font-sans text-sm md:text-base tracking-widest text-off-black/60 opacity-0 animate-[fadeIn_1.5s_ease-out_0.5s_forwards]">
           {CONTENT.hero.subtitle}
         </p>
       </div>

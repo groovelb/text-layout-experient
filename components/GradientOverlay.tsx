@@ -12,10 +12,11 @@ const vertexShader = `
 
 const fragmentShader = `
   uniform float uTime;
-  uniform float uScroll;
+  uniform float uScrollIn;
+  uniform float uScrollOut;
   uniform vec2 uResolution;
-  uniform vec3 uColorTop;
-  uniform vec3 uColorBottom;
+  uniform vec3 uColorLight;
+  uniform vec3 uColorDark;
 
   varying vec2 vUv;
 
@@ -52,22 +53,35 @@ const fragmentShader = `
   }
 
   void main() {
-    // 1. 노이즈 - 아주 완만한 곡선 (거의 수평선)
-    float noise = snoise(vec2(vUv.x * 0.5, vUv.y * 0.5 + uTime * 0.03));
+    // 경계 영역에서 동적으로 일렁이는 효과 - 넓고 자연스러운 곡선
+    float wave = snoise(vec2(vUv.x * 0.8, uTime * 0.25)) * 0.04;
+    float distortedY = vUv.y + wave;
 
-    // 2. 왜곡 - 직선에 가깝지만 유기적인 움직임
-    float distortedY = vUv.y + noise * 0.04;
+    // Phase 1: 어두운색이 아래에서 올라옴 (Hero → Section1)
+    float progressIn = uScrollIn * 1.2 + 0.15;
+    float maskIn = smoothstep(progressIn - 0.2, progressIn + 0.2, distortedY);
 
-    // 3. 스크롤 진행도 (시작 시 하단 1/6만 그라데이션)
-    float progress = uScroll * 1.2 + 0.15;
+    // Hero→Section1: 어두운색이 아래에서 올라옴
+    float darkFromIn = 1.0 - maskIn;
 
-    // 4. Smoothstep 마스킹 - 부드러운 그라데이션 경계
-    float mask = smoothstep(progress - 0.2, progress + 0.2, distortedY);
+    // Outro: 밝은색이 아래에서 올라오고, 상단 엣지는 항상 어둡게 유지
+    // 상단 15%는 항상 어두운 엣지로 유지 (Hero 하단의 거울상)
+    float topEdge = smoothstep(0.85, 1.0, distortedY);
 
-    // 5. 컬러 믹싱
-    vec3 color = mix(uColorBottom, uColorTop, mask);
+    // 밝은 영역이 아래에서 위로 올라옴 (85% 지점까지만)
+    float lightReach = uScrollOut * 0.85;
+    float isLight = smoothstep(lightReach + 0.15, lightReach - 0.15, distortedY);
 
-    // 6. 미세한 필름 그레인
+    // 최종 어두운 정도: 밝은 영역이 아니거나 상단 엣지면 어둡게
+    float outroDark = 1.0 - isLight * (1.0 - topEdge);
+
+    // 섹션에서는 darkFromIn, outro에서는 outroDark 적용
+    float darkAmount = darkFromIn * (1.0 - uScrollOut + uScrollOut * outroDark);
+
+    // 밝은색에서 어두운색으로
+    vec3 color = mix(uColorLight, uColorDark, darkAmount);
+
+    // 필름 그레인
     float grain = random(vUv * uResolution + uTime) * 0.035;
     color += grain;
 
@@ -88,10 +102,12 @@ function hexToRgb(hex: string): [number, number, number] {
   return [0, 0, 0];
 }
 
-const GradientOverlay: React.FC = () => {
+interface Props {
+  outroRef?: React.RefObject<HTMLElement | null>;
+}
+
+const GradientOverlay: React.FC<Props> = ({ outroRef }) => {
   const containerRef = useRef<HTMLDivElement>(null);
-  const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
-  const uniformsRef = useRef<any>(null);
   const animationIdRef = useRef<number>(0);
 
   useEffect(() => {
@@ -107,21 +123,20 @@ const GradientOverlay: React.FC = () => {
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     container.appendChild(renderer.domElement);
-    rendererRef.current = renderer;
 
     // Colors
-    const colorTop = hexToRgb(COLORS.bgLight);
-    const colorBottom = hexToRgb(COLORS.bgDark);
+    const colorLight = hexToRgb(COLORS.bgLight);
+    const colorDark = hexToRgb(COLORS.bgDark);
 
     // Uniforms
     const uniforms = {
       uTime: { value: 0 },
-      uScroll: { value: 0 },
+      uScrollIn: { value: 0 },
+      uScrollOut: { value: 0 },
       uResolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
-      uColorTop: { value: new THREE.Color(...colorTop) },
-      uColorBottom: { value: new THREE.Color(...colorBottom) }
+      uColorLight: { value: new THREE.Color(...colorLight) },
+      uColorDark: { value: new THREE.Color(...colorDark) }
     };
-    uniformsRef.current = uniforms;
 
     // Material & Mesh
     const material = new THREE.ShaderMaterial({
@@ -134,14 +149,24 @@ const GradientOverlay: React.FC = () => {
     scene.add(mesh);
 
     // Scroll handling
-    let targetScroll = 0;
-    let currentScroll = 0;
+    let targetScrollIn = 0;
+    let targetScrollOut = 0;
+    let currentScrollIn = 0;
+    let currentScrollOut = 0;
 
     const updateScrollTarget = () => {
       const scrollY = window.scrollY;
       const windowHeight = window.innerHeight;
-      // 히어로 높이(100vh) 기준으로 progress 계산
-      targetScroll = Math.min(scrollY / windowHeight, 1);
+
+      // Hero → Section1 진행도
+      targetScrollIn = Math.min(scrollY / windowHeight, 1);
+
+      // Section3 → Outro 진행도
+      if (outroRef?.current) {
+        const outroRect = outroRef.current.getBoundingClientRect();
+        let outroProgress = (windowHeight - outroRect.top) / windowHeight;
+        targetScrollOut = Math.max(0, Math.min(1, outroProgress));
+      }
     };
 
     // Resize handling
@@ -160,10 +185,12 @@ const GradientOverlay: React.FC = () => {
       const elapsedTime = clock.getElapsedTime();
 
       // Smooth scroll interpolation
-      currentScroll += (targetScroll - currentScroll) * 0.06;
+      currentScrollIn += (targetScrollIn - currentScrollIn) * 0.06;
+      currentScrollOut += (targetScrollOut - currentScrollOut) * 0.06;
 
       uniforms.uTime.value = elapsedTime;
-      uniforms.uScroll.value = currentScroll;
+      uniforms.uScrollIn.value = currentScrollIn;
+      uniforms.uScrollOut.value = currentScrollOut;
 
       renderer.render(scene, camera);
       animationIdRef.current = requestAnimationFrame(animate);
@@ -183,7 +210,7 @@ const GradientOverlay: React.FC = () => {
         container.removeChild(renderer.domElement);
       }
     };
-  }, []);
+  }, [COLORS.bgLight, COLORS.bgDark, outroRef]);
 
   return (
     <div
