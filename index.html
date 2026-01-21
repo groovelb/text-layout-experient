@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Self-Reliance</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              'off-white': '#FAFAF8',
+              'off-black': '#0A0A0C',
+              'mid-light': '#E8E8E6',
+              'mid-dark': '#18181A',
+            },
+            fontFamily: {
+              serif: ['"Playfair Display"', 'serif'],
+              sans: ['Inter', 'sans-serif'],
+            },
+            letterSpacing: {
+              'tight-editorial': '-0.03em',
+            },
+            spacing: {
+              '128': '32rem',
+            }
+          }
+        }
+      }
+    </script>
+    <style>
+      html, body {
+        margin: 0;
+        padding: 0;
+        background: transparent;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        overflow-x: hidden;
+      }
+      #root {
+        background: transparent;
+      }
+      /* Custom utility for word spacing since Tailwind doesn't support it natively in default config */
+      .word-spacing-wide {
+        word-spacing: 0.15em;
+      }
+      .hide-scrollbar::-webkit-scrollbar {
+        display: none;
+      }
+      .hide-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+      /* 라이트 모드 (히어로) */
+      .text-light-mode {
+        color: #0A0A0C;
+      }
+      .border-light-mode {
+        background-color: #0A0A0C;
+      }
+      /* 다크 모드 (섹션1 ~ 아웃트로) */
+      .text-dark-mode {
+        color: #E8E8E6;
+      }
+      .border-dark-mode {
+        background-color: #E8E8E6;
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
+    "react/": "https://esm.sh/react@^19.2.3/",
+    "react": "https://esm.sh/react@^19.2.3"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+  </body>
+</html>
