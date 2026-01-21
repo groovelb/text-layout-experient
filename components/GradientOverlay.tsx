@@ -58,11 +58,11 @@ const fragmentShader = `
     // 2. 왜곡 - 직선에 가깝지만 유기적인 움직임
     float distortedY = vUv.y + noise * 0.04;
 
-    // 3. 스크롤 진행도
-    float progress = uScroll * 1.6 - 0.3;
+    // 3. 스크롤 진행도 (시작 시 하단 1/6만 그라데이션)
+    float progress = uScroll * 1.2 + 0.15;
 
     // 4. Smoothstep 마스킹 - 부드러운 그라데이션 경계
-    float mask = smoothstep(progress - 0.3, progress + 0.3, distortedY);
+    float mask = smoothstep(progress - 0.2, progress + 0.2, distortedY);
 
     // 5. 컬러 믹싱
     vec3 color = mix(uColorBottom, uColorTop, mask);
